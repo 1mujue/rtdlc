@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "lexer/Lexer.hpp"
+#include "lexer/lexer.hpp"
 #include "syntactic/syn_parser.hpp"
 #include "xml_gen/xml_emitter.hpp"
 
