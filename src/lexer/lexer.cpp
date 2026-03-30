@@ -1,4 +1,4 @@
-#include "lexer/Lexer.hpp"
+#include "lexer/lexer.hpp"
 
 bool isWhiteSpace(int ch){
     return ch == '\n' || ch == '\t' || ch == ' ' || ch == '\r' || ch == '\f' || ch == '\v';
