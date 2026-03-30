@@ -9,7 +9,7 @@ struct Param{
     std::string value;
 };
 void handleParas(int argc, char** argv, std::vector<Param>& paras){
-    for(int i = 0; i < argc; i += 2){
+    for(int i = 1; i < argc; i += 2){
         for(auto& it: paras){
             if(argv[i] == it.key){
                 if(i + 1 >= argc){
@@ -26,6 +26,7 @@ int main(int argc, char** argv){
     std::vector<Param> paras{rtdlPara, lexerPara, synPara, btPara};
     handleParas(argc, argv, paras);
 
+    std::cout << "RTDL output file: " << paras[3].value << '\n';
     std::ofstream lexerOut(paras[1].value), synOut(paras[2].value), xmlOut(paras[3].value);
 
     Lexer lexer(rtdlPara.value);
