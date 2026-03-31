@@ -57,21 +57,44 @@ std::vector<TokenSPtr> Lexer::tokenize(){
             tokens.push_back(anaIDToken(word, line));
             if(file.eof()) break;
             else file.putback(ch);
-        } else if(isdigit(ch)){
-            std::string numStr;
-            bool isFloat = false;
-            while(isdigit(ch) || ch == '.'){
-                if(ch == '.') isFloat = true;
-                numStr.push_back(ch);
-                if(file.eof()) break;
-                file.get(ch);
+        } else if(ch == '-' || isdigit(ch)){
+            bool isNumber = true;
+            int sign = 1;
+            if(ch == '-'){
+                isNumber = false;
+                char tch = file.peek();
+                if(isdigit(tch)){
+                    file.get();
+                    ch = tch;
+                    isNumber = true;
+                    sign = -1;
+                } else {
+                    // check for '->'
+                    if(tch == '>'){
+                        file.get();
+                        tokens.push_back(std::make_shared<Token>(TOKEN_ENUM::ARWTK, line, "->"));
+                    } else {
+                        throw std::runtime_error("Unexpected character: " + std::string(1, ch) + " at line " + std::to_string(line));
+                    }
+                }
             }
-            TokenSPtr token = std::make_shared<Token>(isFloat? TOKEN_ENUM::LFTK: TOKEN_ENUM::LITK, line);
-            token->setNumValue(std::stod(numStr));
-            tokens.push_back(token);
+            if(isNumber){
+                std::string numStr;
+                bool isFloat = false;
+                while(isdigit(ch) || ch == '.'){
+                    if(ch == '.') isFloat = true;
+                    numStr.push_back(ch);
+                    if(file.eof()) break;
+                    file.get(ch);
+                }
+                TokenSPtr token = std::make_shared<Token>(isFloat? TOKEN_ENUM::LFTK: TOKEN_ENUM::LITK, line);
+                token->setNumValue(std::stod(numStr) * sign);
+                tokens.push_back(token);
 
-            if(file.eof()) break;
-            else file.putback(ch);
+                if(file.eof()) break;
+                else file.putback(ch);
+            }
+            
         } else if(ch == ';'){
             tokens.push_back(std::make_shared<Token>(TOKEN_ENUM::SEMITK, line, ";"));
         } else if(ch == ':'){
@@ -92,14 +115,6 @@ std::vector<TokenSPtr> Lexer::tokenize(){
                 tokens.push_back(std::make_shared<Token>(TOKEN_ENUM::EQLTK, line, "=="));
             } else {
                 tokens.push_back(std::make_shared<Token>(TOKEN_ENUM::ASGNTK, line, "="));
-            }
-        } else if(ch == '-'){
-            // check for '->'
-            if(file.peek() == '>'){
-                file.get();
-                tokens.push_back(std::make_shared<Token>(TOKEN_ENUM::ARWTK, line, "->"));
-            } else {
-                throw std::runtime_error("Unexpected character: " + std::string(1, ch) + " at line " + std::to_string(line));
             }
         } else if(ch == '|'){
             // check for '||'

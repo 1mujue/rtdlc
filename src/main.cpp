@@ -26,10 +26,11 @@ int main(int argc, char** argv){
     std::vector<Param> paras{rtdlPara, lexerPara, synPara, btPara};
     handleParas(argc, argv, paras);
 
-    std::cout << "RTDL output file: " << paras[3].value << '\n';
+    std::cout << "rtdl input file: " << paras[0].value << '\n';
+    std::cout << "bt output file: " << paras[3].value << '\n';
     std::ofstream lexerOut(paras[1].value), synOut(paras[2].value), xmlOut(paras[3].value);
 
-    Lexer lexer(rtdlPara.value);
+    Lexer lexer(paras[0].value);
     std::vector<std::shared_ptr<Token>> tokens = lexer.tokenize();
     for(const auto& token: tokens) token->print(lexerOut);
 
