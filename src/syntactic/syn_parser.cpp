@@ -575,8 +575,14 @@ void SynParser::parseDuration(){
 
 void SynParser::parseType(){
     ASTTypeSPtr type = std::make_shared<ASTType>();
-    parseBuiltinType();
-    type->buildinType = std::dynamic_pointer_cast<ASTBuiltinType>(astStacks.back());
+    TOKEN_ENUM tk = peekToken();
+    if(tk == TOKEN_ENUM::IDTK){
+        TokenSPtr token = getTokenWithExcep(TOKEN_ENUM::IDTK);
+        type->selfDefType = token;
+    } else {
+        parseBuiltinType();
+        type->buildinType = std::dynamic_pointer_cast<ASTBuiltinType>(astStacks.back());    
+    }
     astStacks.pop_back();
     astStacks.push_back(type);
 }

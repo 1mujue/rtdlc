@@ -428,7 +428,8 @@ public:
 
 class ASTType : public AST{
 public:
-    ASTBuiltinTypeSPtr buildinType;
+    ASTBuiltinTypeSPtr buildinType = nullptr;
+    TokenSPtr selfDefType = nullptr;
     ASTType() : AST(AST_ENUM::TYPE) {}
     void print(std::ostream& o) override;
     void accept(ASTVisitor& av) override;
