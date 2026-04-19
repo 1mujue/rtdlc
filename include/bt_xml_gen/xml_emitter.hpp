@@ -1,10 +1,11 @@
 #pragma once
-#include <string>
-#include "forward.hpp"
+#include <vector>
 #include "syntactic/ast_visitor.hpp"
-class SemParser: public ASTVisitor{
+#include "bt_xml_gen/entities.hpp"
+class XMLEmitter: public ASTVisitor{
 private:
-    void readSkiFromJson(const std::string&);
+    std::vector<XMLNodeSPtr> xmlStack;
+    std::vector<std::string> expString;
 public:
     void visitCompUnit(ASTCompUnit&) override;
     void visitTaskDef(ASTTaskDef&) override;
@@ -47,6 +48,7 @@ public:
     void visitDuration(ASTDuration&) override;
     void visitType(ASTType&) override;
     void visitBuiltinType(ASTBuiltinType&) override;
-
-    void parse(ASTCompUnitSPtr);
+    XMLNodeSPtr emitXML(ASTCompUnitSPtr);
+private:
+    std::string valueFormat(const std::string&);
 };

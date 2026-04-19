@@ -1,0 +1,110 @@
+def task Prepare(item:string, room:string; ready:bool) {
+  state local_ok: bool;
+  state local_count: int;
+  state local_score: float;
+  state local_name: string;
+
+  sequence {
+    do Init(item=item, room=room; success->local_ok);
+    check(local_ok == true);
+    do Count(item=item; count->local_count);
+    check(local_count >= 1);
+    do Score(item=item; score->local_score);
+    check(local_score > 0.5 && !(local_count < 1));
+    do Mark(name="prepare_done"; done->ready);
+  }
+}
+
+def task Deliver(item:string, from_room:string, to_room:string; finished:bool) {
+  state nav_ok: bool;
+  state pick_ok: bool;
+  state place_ok: bool;
+  state prepared: bool;
+  state retries: int;
+  state confidence: float;
+  state status: string;
+
+  sequence {
+    call Prepare(item=item, room=from_room; ready->prepared);
+    check(prepared);
+
+    retry(3)
+    sequence {
+      timeout(5000)
+      do NavTo(target=from_room; success->nav_ok);
+      check(nav_ok == true);
+    }
+    
+    selector {
+      sequence {
+        do Detect(item=item; ok->pick_ok);
+        check(pick_ok != false);
+      }
+      sequence {
+        wait(1000);
+        do RetryDetect(item=item; ok->pick_ok);
+        check(pick_ok == true);
+      }
+    }
+    
+    timeout(3000)
+    do Pick(item=item; success->pick_ok);
+    
+    check(pick_ok == true);
+    
+    retry(2)
+    sequence {
+      do NavTo(target=to_room; success->nav_ok);
+      check(nav_ok);
+    }
+    
+    do Place(target=to_room; success->place_ok);
+    check(place_ok == true);
+    
+    do Finish(msg="done", code=1, ratio=1.0, flag=true; ok->finished);
+
+  }
+}
+
+def task Diagnostics(flag:bool, level:int, name:string; ok:bool) {
+  state a: bool;
+  state b: bool;
+  state x: int;
+  state y: int;
+  state z: float;
+  state s: string;
+
+  sequence {
+    do Probe(flag=flag, level=level, name=name; pass->a);
+    do Sample(value=3, text="alpha", rate=0.25, enabled=false; pass->b);
+    check(a && b);
+    check(!a || b);
+    check(level >= 0);
+    check(level <= 10);
+    check(level != 5);
+    check(name == "robot");
+    check(name != "error");
+    wait(10);
+    do Report(flag=a; done->ok);
+  }
+}
+
+def task Main(; success:bool) {
+  state prepared_ok: bool;
+  state delivered_ok: bool;
+  state diag_ok: bool;
+
+  sequence {
+    call Diagnostics(flag=true, level=3, name="robot"; ok->diag_ok);
+    check(diag_ok == true);
+
+    call Deliver(item="cup", from_room="kitchen", to_room="table"; finished->delivered_ok);
+    check(delivered_ok);
+    
+    do FinalCheck(; result->prepared_ok);
+    check(prepared_ok == true);
+    
+    do SetResult(value=true; out->success);
+
+  }
+}

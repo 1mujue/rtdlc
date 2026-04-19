@@ -19,6 +19,9 @@ class RTDLErrTable{
 private:
     std::vector<RTDLErr> errs;
 public:
+    bool isErr(){
+        return !errs.empty();
+    }
     void addError(const RTDLErr& err) {
         errs.push_back(err);
     }

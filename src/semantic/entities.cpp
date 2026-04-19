@@ -14,13 +14,14 @@ std::ostream& operator<<(std::ostream& o, SYM_ENUM se){
 }
 
 Symbol::Symbol(SYM_ENUM se, const std::string& name) : se(se), name(name){}
+SYM_ENUM Symbol::getSE(){return se;}
 std::string Symbol::getName(){return name;}
 Symbol::~Symbol(){}
 void Symbol::print(std::ostream& o) {
     o << se << ": " << name;
 }
 void SymbolTable::setFaTable(SymbolTableSPtr faTable){
-    faTable = faTable;
+    this->faTable = faTable;
 }
 void SymbolTable::addChildTable(SymbolTableSPtr childTable){
     childTables.push_back(childTable);
@@ -38,6 +39,9 @@ SymbolSPtr SymbolTable::getSymbol(const std::string& name){
     if(!isSymExistHere(name)) return faTable? faTable->getSymbol(name): nullptr;
     return symbols.find(name)->second;
 }
+const std::unordered_map<std::string, SymbolSPtr>& SymbolTable::getAllSymbols(){
+    return symbols;
+}
 void SymbolTable::print(std::ostream& o){
     for(const auto& it: symbols){
         it.second->print(o);
@@ -52,6 +56,8 @@ void Callable::bindOutPara(const std::string& name, const std::string& type){
 }
 std::string Callable::getInType(const std::string& name) {return inParams[name];}
 std::string Callable::getOutType(const std::string& name) {return outParams[name];}
+const std::unordered_map<std::string, std::string>& Callable::getInParas(){ return inParams; }
+const std::unordered_map<std::string, std::string>& Callable::getOutParas(){ return outParams; }
 Callable::Callable(SYM_ENUM se, const std::string& name): Symbol(se, name){}
 void Callable::print(std::ostream& o) {
     Symbol::print(o);
@@ -67,6 +73,39 @@ void Callable::print(std::ostream& o) {
 }
 
 SkillSym::SkillSym(const std::string& name): Callable(SYM_ENUM::SKILL_SYM, name){}
+std::string SkillSym::getROS2Backend(){
+    return rosBackend;
+}
+void SkillSym::setROS2Backend(const std::string& ros2Backend){
+    this->rosBackend = ros2Backend;
+}
+void SkillSym::setROS2ReqType(const std::string& ros2_req_type){
+    this->ros2ReqType = ros2_req_type;
+}
+void SkillSym::setROS2Srv(const std::string& ros2SrvName){
+    this->ros2SrvName = ros2SrvName;
+}
+std::string SkillSym::getROS2ReqType(){
+    return ros2ReqType;
+}
+std::string SkillSym::getROS2Srv(){
+    return this->ros2SrvName;
+}
+void SkillSym::addInputToROSMapping(const std::string& port, const std::string& target) {
+    inputToRosMappings.push_back({port, target});
+}
+
+void SkillSym::addOutputToROSMapping(const std::string& source, const std::string& port) {
+    outputToRosMappings.push_back({source, port});
+}
+
+const std::vector<InputToRosMapping>& SkillSym::getInputToROSMappings() const {
+    return inputToRosMappings;
+}
+
+const std::vector<OutputToRosMapping>& SkillSym::getOutputToROSMappings() const {
+    return outputToRosMappings;
+}
 void SkillSym::print(std::ostream& o){
     Callable::print(o);
 }

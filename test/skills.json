@@ -1,0 +1,82 @@
+[
+    {
+        "name": "NavTo",
+        "inputs": [
+            {"name": "robot_name", "type":"string"}, 
+            {"name": "x", "type":"double"}, 
+            {"name": "y", "type":"double"}, 
+            {"name":"tolerance","type":"double"}
+        ],
+        "outputs": [
+            {"name":"success","type":"bool"},
+            {"name":"message","type":"string"}
+        ],
+        "port_mappings": {
+            "input_to_ros": [
+
+            ],
+            "output_to_ros": [
+
+            ]
+        },
+        "description": "Navigate the robot to (x, y).",
+        "preconditions": "None",
+        "effects": [
+            "robot move to (x, y)"
+        ]
+    },   
+    {
+        "name": "Pick",
+        "inputs": [
+            {"name":"robot_name","type":"string"}, 
+            {"name":"object_name","type":"string"}
+        ],
+        "outputs": [
+            {"name":"success","type":"bool"},
+            {"name":"message","type":"string"}
+        ],
+        "port_mappings": {
+            "input_to_ros": [
+
+            ],
+            "output_to_ros": [
+
+            ]
+        },
+        "description": "Make the robot pick up a graspable object.",
+        "preconditions": [
+        "robot is not holding any object",
+        "object is graspable by robot"
+        ],
+        "effects": [
+        "robot is holding the object"
+        ]
+    },
+    {
+        "name": "Place",
+        "inputs": [
+            {"name":"robot_name","type":"string"}, 
+            {"name":"object_name","type":"string"}, 
+            {"name":"location_name","type":"string"}
+        ],
+        "outputs": [
+            {"name":"success","type":"bool"},
+            {"name":"message","type":"string"}
+        ],
+        "port_mappings": {
+            "input_to_ros": [
+
+            ],
+            "output_to_ros": [
+
+            ]
+        },
+        "description": "Place the robot's currently holding object onto a target object or target position.",
+        "preconditions": [
+        "robot is holding the object"
+        ],
+        "effects": [
+        "robot no longer holds the object"
+        ]
+    }
+]

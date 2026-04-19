@@ -3,7 +3,7 @@
 #include "syntactic/entities.hpp"
 #include "contexts/frontend_context.hpp"
 #include <nlohmann/json.hpp>
-
+#include <fstream>
 extern FrontendContext& fc;
 
 using json = nlohmann::json;
@@ -32,16 +32,45 @@ static void parseParamArray(
         }
     }
 }
+static void parsePortMappings(const json& j, SkillSym& skill) {
+    if (!j.contains("port_mappings")) {
+        return;
+    }
+
+    const auto& mappings = j.at("port_mappings");
+
+    if (mappings.contains("input_to_ros")) {
+        for (const auto& item : mappings.at("input_to_ros")) {
+            std::string port   = item.at("port").get<std::string>();
+            std::string target = item.at("target").get<std::string>();
+            skill.addInputToROSMapping(port, target);
+        }
+    }
+
+    if (mappings.contains("output_to_ros")) {
+        for (const auto& item : mappings.at("output_to_ros")) {
+            std::string source = item.at("source").get<std::string>();
+            std::string port   = item.at("port").get<std::string>();
+            skill.addOutputToROSMapping(source, port);
+        }
+    }
+}
 static std::shared_ptr<SkillSym> parseSkillSym(const json& j) {
     std::string skill_name = j.at("name").get<std::string>();
+    std::string ros2_backend = j.at("ros2").at("backend").get<std::string>();
+    std::string ros2_req_type = j.at("ros2").at("request_type").get<std::string>();
+    std::string ros2_srv_name = j.at("ros2").at("service_name").get<std::string>();
     auto skill = std::make_shared<SkillSym>(skill_name);
-
+    skill->setROS2Backend(ros2_backend);
+    skill->setROS2ReqType(ros2_req_type);
+    skill->setROS2Srv(ros2_srv_name);
     if (j.contains("inputs")) {
         parseParamArray(j.at("inputs"), *skill, true);
     }
     if (j.contains("outputs")) {
         parseParamArray(j.at("outputs"), *skill, false);
     }
+    parsePortMappings(j, *skill);
 
     return skill;
 }
@@ -58,8 +87,6 @@ void loadSkills(const std::string& path) {
         throw std::runtime_error("skills.json root must be an array");
     }
 
-    skills.reserve(root.size());
-
     for (const auto& item : root) {
         SkillSymSPtr skiSym = parseSkillSym(item);
         fc.globTable->addSymbol(skiSym->getName(), skiSym);
@@ -68,7 +95,7 @@ void loadSkills(const std::string& path) {
 
 void SemParser::parse(ASTCompUnitSPtr compUnit){
     fc.globTable = std::make_shared<SymbolTable>();
-    loadSkills("skills.json");
+    loadSkills("./skills.json");
     fc.currTable = fc.globTable;
     compUnit->accept(*this);
 }
@@ -90,6 +117,8 @@ void SemParser::visitTaskDef(ASTTaskDef& taskDef){
     }
     SymbolTableSPtr oriTable = fc.currTable;
     fc.currTable = std::make_shared<SymbolTable>();
+    fc.currTable->setFaTable(oriTable);
+    oriTable->addChildTable(fc.currTable);
 
     taskDef.params->accept(*this);
     taskDef.body->accept(*this);
@@ -181,7 +210,7 @@ void SemParser::visitToutNode(ASTToutNode& toutNode){
 void SemParser::visitSkillCall(ASTSkillCall& skiCall){
     std::string skiName = skiCall.idtk->getContent();
     int line = skiCall.idtk->getLine();
-    if(!fc.currTable->isSymExistHere(skiName)){
+    if(!fc.currTable->isSymExistHierarchy(skiName)){
         fc.errTable.addError(RTDLErr{"Semantic Error", line, "The skill: " + skiName + " doesn't exist."});
     } 
     fc.currSkill = std::dynamic_pointer_cast<SkillSym>(fc.currTable->getSymbol(skiName));
@@ -291,8 +320,8 @@ void SemParser::visitPrimaryExp(ASTPrimaryExp& priExp){
 void SemParser::visitLiteral(ASTLiteral& literal){
     if(literal.ltype == ASTLiteral::AST_LITERAL_TYPE::BOOL){
         fc.typeStr = "bool";
-    } else if(literal.ltype == ASTLiteral::AST_LITERAL_TYPE::FLOAT){
-        fc.typeStr = "float";
+    } else if(literal.ltype == ASTLiteral::AST_LITERAL_TYPE::DOUBLE){
+        fc.typeStr = "double";
     } else if(literal.ltype == ASTLiteral::AST_LITERAL_TYPE::STRING){
         fc.typeStr = "string";
     } else if(literal.ltype == ASTLiteral::AST_LITERAL_TYPE::INT){
@@ -318,7 +347,7 @@ void SemParser::visitType(ASTType& type){
     else fc.typeStr = type.selfDefType->getContent();
 }
 void SemParser::visitBuiltinType(ASTBuiltinType& bitype){
-    if(bitype.floattk) fc.typeStr = "float";
+    if(bitype.doubletk) fc.typeStr = "double";
     if(bitype.booltk) fc.typeStr = "bool";
     if(bitype.inttk) fc.typeStr = "int";
     if(bitype.stringtk) fc.typeStr = "string";

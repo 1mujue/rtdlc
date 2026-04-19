@@ -1,7 +1,0 @@
-<root main_tree_to_execute = "Main" BTCPP_format = "4">
-  <BehaviorTree ID = "Main">
-    <Sequence>
-      <NavTo tolerance = "0.100000" y = "2.000000" x = "2.000000" robot_name = "CAR" message = "{nav_message}" success = "{nav_success}"/>
-    </Sequence>
-  </BehaviorTree>
-</root>

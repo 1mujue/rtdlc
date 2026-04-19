@@ -7,6 +7,8 @@ class Callable;
 class SkillSym;
 class TaskSym;
 class VarSym;
+struct InputToRosMapping;
+struct OutputToRosMapping;
 
 using SymbolSPtr = std::shared_ptr<Symbol>;
 using SymbolTableSPtr = std::shared_ptr<SymbolTable>;

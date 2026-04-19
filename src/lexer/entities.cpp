@@ -34,7 +34,7 @@ const char* toString(TOKEN_ENUM te){
         case TOKEN_ENUM::LEQTK:   return "LEQTK";
         case TOKEN_ENUM::BOOLTK:  return "BOOLTK";
         case TOKEN_ENUM::INTTK:   return "INTTK";
-        case TOKEN_ENUM::FLOATTK: return "FLOATTK";
+        case TOKEN_ENUM::DOUBLETK: return "DOUBLETK";
         case TOKEN_ENUM::STRTK:   return "STRTK";
         case TOKEN_ENUM::LITK:    return "LITK";
         case TOKEN_ENUM::LFTK:    return "LFTK";

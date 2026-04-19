@@ -406,7 +406,7 @@ class ASTLiteral : public AST{
 public:
     enum class AST_LITERAL_TYPE{
         INT,
-        FLOAT,
+        DOUBLE,
         STRING,
         BOOL
     };
@@ -437,7 +437,7 @@ public:
 
 class ASTBuiltinType : public AST{
 public:
-    TokenSPtr booltk = nullptr, inttk = nullptr, floattk = nullptr, stringtk = nullptr;
+    TokenSPtr booltk = nullptr, inttk = nullptr, doubletk = nullptr, stringtk = nullptr;
     ASTBuiltinType() : AST(AST_ENUM::BUILTIN_TYPE) {}
     void print(std::ostream& o) override;
     void accept(ASTVisitor& av) override;

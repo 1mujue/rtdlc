@@ -40,7 +40,7 @@ enum class TOKEN_ENUM{
     LEQTK,
     BOOLTK,
     INTTK,
-    FLOATTK,
+    DOUBLETK,
     STRTK,
     LITK,
     LFTK,

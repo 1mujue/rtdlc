@@ -1,0 +1,14 @@
+def task Main(;) {
+    state nav_suc: bool;
+    state nav_msg: string;
+    state pick_suc: bool;
+    state pick_msg: string;
+    state place_suc: bool;
+    state place_msg: string;
+    sequence {
+        do NavTo(robot_name="CAR", x=2.0, y=2.0, tolerance=0.1; success->nav_suc, message->nav_mes);
+        do Pick(robot_name="CAR",object_name="CUP";success->pick_suc,message->pick_msg);
+        do NavTo(robot_name="CAR", x=-2.0, y=2.0, tolerance=0.1; success->nav_suc, message->nav_msg);
+        do Place(robot_name="CAR",object_name="CUP",location_name="TABLE"; success->place_suc, message->place_msg);
+    }
+}

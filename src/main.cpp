@@ -4,8 +4,10 @@
 #include "syntactic/syn_parser.hpp"
 #include "semantic/sem_parser.hpp"
 #include "semantic/entities.hpp"
-#include "xml_gen/xml_emitter.hpp"
 #include "contexts/frontend_context.hpp"
+#include "contexts/backend_context.hpp"
+#include "bt_xml_gen/xml_emitter.hpp"
+#include "bt_node_gen/node_emitter.hpp"
 
 struct Param{
     std::string key;
@@ -23,16 +25,29 @@ void handleParas(int argc, char** argv, std::vector<Param>& paras){
         }
     }
 }
+void checkParas(int argc, char** argv, std::vector<Param>& paras){
+    for(const auto& it: paras){
+        if(it.value.empty()){
+            throw std::runtime_error("Param Error: lack value of " + it.key);
+        }
+    }
+}
 
 FrontendContext& fc = FrontendContext::getInstance();
+BackendContext& bc = BackendContext::getInstance();
 
 int main(int argc, char** argv){
 
     Param rtdlPara{"--rtdl-in", "rtdl.txt"}, lexerPara{"--lexer-out", "lexer.txt"}, 
     synPara{"--syn-out", "syntactic.txt"}, semPara{"--sem-out","semantic.txt"},
-    btPara{"--bt-out", "tree.xml"}, errPara{"--error-out", "error.txt"};
-    std::vector<Param> paras{rtdlPara, lexerPara, synPara, semPara, btPara, errPara};
+    btPara{"--bt-out", "tree.xml"}, errPara{"--error-out", "error.txt"},
+    ros2WSPara{"--ros2-ws", ""}, ros2PkgPara{"--ros2-pkg", "rtdl_demo_bt_test"};
+    std::vector<Param> paras{rtdlPara, lexerPara, synPara, semPara, btPara, errPara, ros2WSPara, ros2PkgPara};
     handleParas(argc, argv, paras);
+    checkParas(argc, argv, paras);
+
+    bc.ros2WS = paras[6].value;
+    bc.ros2Pkg = paras[7].value;
 
     std::cout << "rtdl input file: " << paras[0].value << '\n';
     std::cout << "bt output file: " << paras[4].value << '\n';
@@ -52,11 +67,17 @@ int main(int argc, char** argv){
     SemParser.parse(astCompUnit);
     fc.globTable->print(semOut);
 
-    XMLEmitter xmlEmi;
-    XMLNodeSPtr XMLCompUnit = xmlEmi.emitXML(astCompUnit);
-    XMLCompUnit->print(xmlOut, 0); 
+    if(fc.errTable.isErr()){
+        std::cerr << "Some errors happened when compiling, it will be displayed here while also saved to " <<  paras[5].value << '\n';
+        fc.errTable.printErr(errOut);
+        fc.errTable.printErr(std::cerr);
+    }  else {
+        XMLEmitter xmlEmi;
+        XMLNodeSPtr XMLCompUnit = xmlEmi.emitXML(astCompUnit);
+        XMLCompUnit->print(xmlOut, 0); 
 
-    fc.errTable.printErr(errOut);
-    
+        NodeEmitter nodeEmi;
+        nodeEmi.emitNode();
+    }
     return 0;
 }

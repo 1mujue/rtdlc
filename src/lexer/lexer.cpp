@@ -28,7 +28,7 @@ TokenSPtr anaIDToken(const std::string& word, int line){
         else if(word == "wait") token->setTE(TOKEN_ENUM::WAITTK);
         else if(word == "bool") token->setTE(TOKEN_ENUM::BOOLTK);
         else if(word == "int") token->setTE(TOKEN_ENUM::INTTK);
-        else if(word == "float") token->setTE(TOKEN_ENUM::FLOATTK);
+        else if(word == "double") token->setTE(TOKEN_ENUM::DOUBLETK);
         else if(word == "string") token->setTE(TOKEN_ENUM::STRTK);
         else token->setTE(TOKEN_ENUM::IDTK);
         token->setContent(word);
@@ -38,7 +38,7 @@ TokenSPtr anaIDToken(const std::string& word, int line){
 std::vector<TokenSPtr> Lexer::tokenize(){
     std::vector<TokenSPtr> tokens;
     int line = 1; char ch;
-    while(!file.eof()){
+    while(file && !file.eof()){
         file.get(ch);
         while(isWhiteSpace(ch)){
             if(ch == '\n') line++;
@@ -80,14 +80,14 @@ std::vector<TokenSPtr> Lexer::tokenize(){
             }
             if(isNumber){
                 std::string numStr;
-                bool isFloat = false;
+                bool isDouble = false;
                 while(isdigit(ch) || ch == '.'){
-                    if(ch == '.') isFloat = true;
+                    if(ch == '.') isDouble = true;
                     numStr.push_back(ch);
                     if(file.eof()) break;
                     file.get(ch);
                 }
-                TokenSPtr token = std::make_shared<Token>(isFloat? TOKEN_ENUM::LFTK: TOKEN_ENUM::LITK, line);
+                TokenSPtr token = std::make_shared<Token>(isDouble? TOKEN_ENUM::LFTK: TOKEN_ENUM::LITK, line);
                 token->setNumValue(std::stod(numStr) * sign);
                 tokens.push_back(token);
 

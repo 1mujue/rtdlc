@@ -548,7 +548,7 @@ void SynParser::parseLiteral(){
         literal->ltype = ASTLiteral::AST_LITERAL_TYPE::INT;
         literal->val = tk->getNumValue();
     } else if(te == TOKEN_ENUM::LFTK){
-        literal->ltype = ASTLiteral::AST_LITERAL_TYPE::FLOAT;
+        literal->ltype = ASTLiteral::AST_LITERAL_TYPE::DOUBLE;
         literal->val = tk->getNumValue();
     } else if(te == TOKEN_ENUM::LBTK){
         literal->ltype = ASTLiteral::AST_LITERAL_TYPE::BOOL;
@@ -581,16 +581,16 @@ void SynParser::parseType(){
         type->selfDefType = token;
     } else {
         parseBuiltinType();
-        type->buildinType = std::dynamic_pointer_cast<ASTBuiltinType>(astStacks.back());    
+        type->buildinType = std::dynamic_pointer_cast<ASTBuiltinType>(astStacks.back());   
+        astStacks.pop_back(); 
     }
-    astStacks.pop_back();
     astStacks.push_back(type);
 }
 
 void SynParser::parseBuiltinType(){
     ASTBuiltinTypeSPtr btype = std::make_shared<ASTBuiltinType>();
     if((btype->booltk = getTokenWithoutExcep(TOKEN_ENUM::BOOLTK))) ;
-    else if(btype->floattk = getTokenWithoutExcep(TOKEN_ENUM::FLOATTK)) ;
+    else if(btype->doubletk = getTokenWithoutExcep(TOKEN_ENUM::DOUBLETK)) ;
     else if(btype->inttk = getTokenWithoutExcep(TOKEN_ENUM::INTTK)) ;
     else if(btype->stringtk = getTokenWithoutExcep(TOKEN_ENUM::STRTK));
     else throw std::runtime_error("Syntactic Error: can't parse BuildinType.");
