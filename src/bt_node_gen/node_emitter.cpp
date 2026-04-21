@@ -406,7 +406,7 @@ static void emitRun(std::ostream& o){
     params.nh = ros_node;\n\
     registerExecutionNodes(factory, ros_node);\n\
     handleXMLS(factory);\n\n\
-    auto tree = factory.createTree(\"Main\");\n\
+    auto tree = factory.createTree(\"main\");\n\
     const auto status = tree.tickWhileRunning();\n\
     if (status == BT::NodeStatus::SUCCESS) { RCLCPP_INFO(ros_node->get_logger(), \"Behavior tree finished with SUCCESS.\");}\n\
     else if (status == BT::NodeStatus::FAILURE){ RCLCPP_ERROR(ros_node->get_logger(), \"Behavior tree finished with FAILURE.\");}\n\
