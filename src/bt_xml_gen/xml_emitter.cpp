@@ -4,10 +4,12 @@
 void XMLEmitter::visitCompUnit(ASTCompUnit& compUnit) {
     XMLNodeSPtr xmlCP = std::make_shared<XMLNode>("root");
     xmlCP->addAttr("BTCPP_format", valueFormat(std::to_string(4)));
-    xmlCP->addAttr("main_tree_to_execute", valueFormat("Main"));
     for(const auto& it: compUnit.taskDefs){
         it->accept(*this);
         xmlCP->addChild(xmlStack.back()); xmlStack.pop_back();
+    }
+    if(compUnit.taskDefs.size() == 1){
+        xmlCP->addAttr("main_tree_to_execute", valueFormat(compUnit.taskDefs[0]->idtk->getContent()));
     }
     xmlStack.push_back(xmlCP);
 }

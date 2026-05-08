@@ -191,12 +191,11 @@ void NodeEmitter::emitCPPOnFailure(SkillSymSPtr skiSym){
     printWithIndent("return BT::NodeStatus::FAILURE;\n", cpp_out, 4);
     printWithIndent("}\n", cpp_out, 0);
 }
-// action
+// action. Action part is not done yet.
 void NodeEmitter::emitHPPSetGoal(SkillSymSPtr skiSym){
     std::ostream& hpp_out = bc.getHPPOut();
     printWithIndent("bool setGoal(Goal& goal);\n", hpp_out, 4);
 }
-//  TODO: need schema.
 void NodeEmitter::emitCPPSetGoal(SkillSymSPtr skiSym){
     std::ostream& cpp_out = bc.getCPPOut();
     assert(skiSym->getROS2Backend() == "action");
@@ -205,7 +204,6 @@ void NodeEmitter::emitHPPOnResultReceived(SkillSymSPtr skiSym){
     std::ostream& hpp_out = bc.getHPPOut();
     printWithIndent("BT::NodeStatus onResultReceived(const WrappedResult& wr);\n", hpp_out, 4);
 }
-// TODO: need schema.
 void NodeEmitter::emitCPPOnResultReceived(SkillSymSPtr skiSym){
     std::ostream& cpp_out = bc.getCPPOut();
     assert(skiSym->getROS2Backend() == "action");
@@ -255,7 +253,7 @@ void NodeEmitter::emitCPPOnResponseReceived(SkillSymSPtr skiSym){
 
 void NodeEmitter::emitHPP(SkillSymSPtr skiSym){
     std::string name = skiSym->getName(); name = lowerStr(name);
-    fs::path filePath = bc.ros2Pkg + "/include/" + bc.ros2Pkg + "/" + name + ".hpp";
+    fs::path filePath = bc.ros2WS + "/" + bc.ros2Pkg + "/include/" + bc.ros2Pkg + "/" + name + ".hpp";
     if(!filePath.parent_path().empty()){
         fs::create_directories(filePath.parent_path());
     }
@@ -272,7 +270,7 @@ void NodeEmitter::emitHPP(SkillSymSPtr skiSym){
 }
 void NodeEmitter::emitCPP(SkillSymSPtr skiSym){
     std::string name = skiSym->getName(); name = lowerStr(name);
-    fs::path filePath = bc.ros2Pkg + "/src/" + name + ".cpp";
+    fs::path filePath = bc.ros2WS + "/" +  bc.ros2Pkg + "/src/" + name + ".cpp";
     if(!filePath.parent_path().empty()){
         fs::create_directories(filePath.parent_path());
     }
@@ -492,7 +490,7 @@ void NodeEmitter::emitMainBody(std::ostream& o){
 }
 
 void NodeEmitter::emitBTRunner(){
-    fs::path filePath = bc.ros2Pkg + "/src/" + "bt_runner.cpp";
+    fs::path filePath = bc.ros2WS + "/" + bc.ros2Pkg + "/src/" + "bt_runner.cpp";
     if(!filePath.parent_path().empty()){
         fs::create_directories(filePath.parent_path());
     }
