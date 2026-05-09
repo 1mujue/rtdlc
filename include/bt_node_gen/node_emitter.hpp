@@ -3,6 +3,7 @@
 #include <iostream>
 #include <optional>
 #include "semantic/entities.hpp"
+#include "syntactic/forward.hpp"
 class NodeEmitter{
 private:
     std::string cppTypeOf(const std::string&);
@@ -39,7 +40,7 @@ private:
     void emitMainHeader(std::ostream&);
     void emitFacReg(std::ostream&);
     void emitMainBody(std::ostream&);
-    void emitBTRunner();
+    void emitBTRunner(const std::string&);
 public:
-    void emitNode();
+    void emitNode(ASTCompUnitSPtr);
 };

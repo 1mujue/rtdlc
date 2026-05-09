@@ -1,6 +1,7 @@
 #include "bt_node_gen/node_emitter.hpp"
 #include "contexts/backend_context.hpp"
 #include "contexts/frontend_context.hpp"
+#include "syntactic/entities.hpp"
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -395,7 +396,7 @@ static void emitHandleXML(std::ostream& o){
 }\n";
     o << content;
 }
-static void emitRun(std::ostream& o){
+static void emitRun(std::ostream& o,const std::string& treeName){
     std::string content = "static void run(int argc, char** argv){\n\
     rclcpp::init(argc, argv);\n\
     auto ros_node = rclcpp::Node::make_shared(\"bt_runner\");\n\
@@ -404,7 +405,7 @@ static void emitRun(std::ostream& o){
     params.nh = ros_node;\n\
     registerExecutionNodes(factory, ros_node);\n\
     handleXMLS(factory);\n\n\
-    auto tree = factory.createTree(\"main\");\n\
+    auto tree = factory.createTree(\"" + treeName + "\");\n\
     const auto status = tree.tickWhileRunning();\n\
     if (status == BT::NodeStatus::SUCCESS) { RCLCPP_INFO(ros_node->get_logger(), \"Behavior tree finished with SUCCESS.\");}\n\
     else if (status == BT::NodeStatus::FAILURE){ RCLCPP_ERROR(ros_node->get_logger(), \"Behavior tree finished with FAILURE.\");}\n\
@@ -489,7 +490,7 @@ void NodeEmitter::emitMainBody(std::ostream& o){
     o << content;
 }
 
-void NodeEmitter::emitBTRunner(){
+void NodeEmitter::emitBTRunner(const std::string& treeName){
     fs::path filePath = bc.ros2WS + "/" + bc.ros2Pkg + "/src/" + "bt_runner.cpp";
     if(!filePath.parent_path().empty()){
         fs::create_directories(filePath.parent_path());
@@ -501,14 +502,14 @@ void NodeEmitter::emitBTRunner(){
     emitFileOpsFunc(o);
     emitFacReg(o);
     emitHandleXML(o);
-    emitRun(o);
+    emitRun(o, treeName);
     emitMergeStructAndModel(o);
     emitLaunchGroot2(o);
     emitVisualize(o);
     emitMainBody(o);
 }
 
-void NodeEmitter::emitNode(){
+void NodeEmitter::emitNode(ASTCompUnitSPtr compUnit){
     auto globSymMp = fc.globTable->getAllSymbols();
     for(const auto& it: globSymMp){
         if(it.second->getSE() == SYM_ENUM::SKILL_SYM){
@@ -522,5 +523,9 @@ void NodeEmitter::emitNode(){
             bc.ReqTypeInCPP.clear();
         }
     }
-    emitBTRunner();
+    std::string treeName;
+    if(compUnit->taskDefs.size() == 1){
+        treeName = compUnit->taskDefs[0]->idtk->getContent();
+    }
+    emitBTRunner(treeName);
 }
