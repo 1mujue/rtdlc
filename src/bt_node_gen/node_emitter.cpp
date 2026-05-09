@@ -253,7 +253,7 @@ void NodeEmitter::emitCPPOnResponseReceived(SkillSymSPtr skiSym){
 
 void NodeEmitter::emitHPP(SkillSymSPtr skiSym){
     std::string name = skiSym->getName(); name = lowerStr(name);
-    fs::path filePath = bc.ros2WS + "/" + bc.ros2Pkg + "/include/" + bc.ros2Pkg + "/" + name + ".hpp";
+    fs::path filePath = bc.ros2WS + "/src/" + bc.ros2Pkg + "/include/" + bc.ros2Pkg + "/" + name + ".hpp";
     if(!filePath.parent_path().empty()){
         fs::create_directories(filePath.parent_path());
     }
@@ -270,7 +270,7 @@ void NodeEmitter::emitHPP(SkillSymSPtr skiSym){
 }
 void NodeEmitter::emitCPP(SkillSymSPtr skiSym){
     std::string name = skiSym->getName(); name = lowerStr(name);
-    fs::path filePath = bc.ros2WS + "/" +  bc.ros2Pkg + "/src/" + name + ".cpp";
+    fs::path filePath = bc.ros2WS + "/src/" +  bc.ros2Pkg + "/src/" + name + ".cpp";
     if(!filePath.parent_path().empty()){
         fs::create_directories(filePath.parent_path());
     }
@@ -490,7 +490,7 @@ void NodeEmitter::emitMainBody(std::ostream& o){
 }
 
 void NodeEmitter::emitBTRunner(){
-    fs::path filePath = bc.ros2WS + "/" + bc.ros2Pkg + "/src/" + "bt_runner.cpp";
+    fs::path filePath = bc.ros2WS + "/src/" + bc.ros2Pkg + "/src/" + "bt_runner.cpp";
     if(!filePath.parent_path().empty()){
         fs::create_directories(filePath.parent_path());
     }
