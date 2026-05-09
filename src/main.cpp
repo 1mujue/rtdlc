@@ -77,7 +77,7 @@ int main(int argc, char** argv){
         XMLCompUnit->print(xmlOut, 0); 
 
         NodeEmitter nodeEmi;
-        nodeEmi.emitNode();
+        nodeEmi.emitNode(astCompUnit);
     }
     return 0;
 }

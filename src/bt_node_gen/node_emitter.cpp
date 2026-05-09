@@ -315,7 +315,6 @@ void NodeEmitter::emitMainArgParse(std::ostream& o){
     std::string value;\n\
 };\n\
 void handleParas(int argc, char** argv, std::vector<Param>& paras){\n\
-    std::cout << \"argc: \" << argc << '\\n';\n\
     for(int i = 1; i < argc; i += 2){\n\
         for(auto& it: paras){\n\
             if(argv[i] == it.key){\n\
@@ -491,7 +490,7 @@ void NodeEmitter::emitMainBody(std::ostream& o){
 }
 
 void NodeEmitter::emitBTRunner(const std::string& treeName){
-    fs::path filePath = bc.ros2WS + "/" + bc.ros2Pkg + "/src/" + "bt_runner.cpp";
+    fs::path filePath =  bc.ros2WS + "/src/" +  bc.ros2Pkg + "/src/" + "bt_runner.cpp";
     if(!filePath.parent_path().empty()){
         fs::create_directories(filePath.parent_path());
     }
