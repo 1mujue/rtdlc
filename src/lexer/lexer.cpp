@@ -163,6 +163,11 @@ std::vector<TokenSPtr> Lexer::tokenize(){
             }
             // str.push_back('\"');
             tokens.push_back(std::make_shared<Token>(TOKEN_ENUM::LSTK, line, str));
+        } else if(ch == '#'){
+            while(!file.eof()){
+                file.get(ch);
+                if(ch == '\n') break;
+            }
         }
     }
     return tokens;
